@@ -34,7 +34,7 @@ class KafkaConsumer:
         self.broker_properties = {
             "bootstrap.servers": BROKER_URL,
             "group.id": "0-take2",
-            "auto.offset.reset": "earliest",
+            "auto.offset.reset": "earliest" if offset_earliest else "latest",
         }
 
         if is_avro is True:
@@ -67,13 +67,14 @@ class KafkaConsumer:
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
         message = self.consumer.poll(self.consume_timeout)
         if message is None:
-            logging.info(
+            logger.info(
                 f"No message received by consumer in topic {self.topic_name_pattern}"
             )
         elif message.error() is not None:
-            logging.error(f"Error from consumer {message.error()}")
+            logger.error(f"Error from consumer {message.error()}")
         else:
-            return 1
+            self.message_handler(message)
+            logger.info(f"Consumer Message key :{message}")
         return 0
 
     def close(self):
