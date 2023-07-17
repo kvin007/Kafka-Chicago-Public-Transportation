@@ -57,7 +57,7 @@ class Producer:
             topic=self.topic_name
         ).topics
         if self.topic_name not in existing_topics:
-            logging.info(f"Topic {self.topic_name} will be created")
+            logger.info(f"Topic {self.topic_name} will be created")
             futures = admin_client.create_topics(
                 [
                     NewTopic(
