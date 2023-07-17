@@ -1,6 +1,6 @@
 """Contains functionality related to Weather"""
+import json
 import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +15,7 @@ class Weather:
 
     def process_message(self, message):
         """Handles incoming weather data"""
-        logger.info("weather process_message is incomplete - skipping")
-        #
-        #
-        # TODO: Process incoming weather messages. Set the temperature and status.
-        #
-        #
+        if message.topic() == "org.chicago.cta.weather.v1":
+            json_data = json.loads(message.value())
+            self.temperature = json_data.get("temperature")
+            self.status = json_data.get("status")

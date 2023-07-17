@@ -1,12 +1,10 @@
 import logging
 import math
-from pathlib import Path
 import random
+from pathlib import Path
 
 import pandas as pd
-
 from models.producer import Producer
-
 
 logger = logging.getLogger(__name__)
 

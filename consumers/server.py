@@ -7,15 +7,13 @@ import tornado.ioloop
 import tornado.template
 import tornado.web
 
-
 # Import logging before models to ensure configuration is picked up
 logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
 
 
+import topic_check
 from consumer import KafkaConsumer
 from models import Lines, Weather
-import topic_check
-
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +21,9 @@ logger = logging.getLogger(__name__)
 class MainHandler(tornado.web.RequestHandler):
     """Defines a web request handler class"""
 
-    template_dir = tornado.template.Loader(f"{Path(__file__).parents[0]}/templates")
+    template_dir = tornado.template.Loader(
+        f"{Path(__file__).parents[0]}/templates"
+    )
     template = template_dir.load("status.html")
 
     def initialize(self, weather, lines):
@@ -35,7 +35,9 @@ class MainHandler(tornado.web.RequestHandler):
         """Responds to get requests"""
         logging.debug("rendering and writing handler template")
         self.write(
-            MainHandler.template.generate(weather=self.weather, lines=self.lines)
+            MainHandler.template.generate(
+                weather=self.weather, lines=self.lines
+            )
         )
 
 
@@ -63,22 +65,27 @@ def run_server():
     # Build kafka consumers
     consumers = [
         KafkaConsumer(
+            # Consumer from Rest Proxy generated topic
             "org.chicago.cta.weather.v1",
             weather_model.process_message,
             offset_earliest=True,
         ),
         KafkaConsumer(
+            # Consumer from Faust Stream generated topic
+            # (taking data from connector and transforming)
             "org.chicago.cta.stations.table.v1",
             lines.process_message,
             offset_earliest=True,
             is_avro=False,
         ),
         KafkaConsumer(
+            # Consumer from multiple stations generated topic
             "^org.chicago.cta.station.arrivals.",
             lines.process_message,
             offset_earliest=True,
         ),
         KafkaConsumer(
+            # Consumer from KSQL table query aggregation generated topic
             "TURNSTILE_SUMMARY",
             lines.process_message,
             offset_earliest=True,

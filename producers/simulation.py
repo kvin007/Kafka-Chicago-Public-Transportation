@@ -2,21 +2,18 @@
 producers
 """
 import datetime
-import time
-from enum import IntEnum
 import logging
 import logging.config
+import time
+from enum import IntEnum
 from pathlib import Path
 
 import pandas as pd
-
-# Import logging before models to ensure configuration is picked up
-logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
-
 from connector import configure_connector
 from models import Line, Weather
 
-
+# Import logging before models to ensure configuration is picked up
+logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
 logger = logging.getLogger(__name__)
 
 
@@ -40,15 +37,28 @@ class TimeSimulation:
         self.schedule = schedule
         if schedule is None:
             self.schedule = {
-                TimeSimulation.weekdays.mon: {0: TimeSimulation.ten_min_frequency},
-                TimeSimulation.weekdays.tue: {0: TimeSimulation.ten_min_frequency},
-                TimeSimulation.weekdays.wed: {0: TimeSimulation.ten_min_frequency},
-                TimeSimulation.weekdays.thu: {0: TimeSimulation.ten_min_frequency},
-                TimeSimulation.weekdays.fri: {0: TimeSimulation.ten_min_frequency},
-                TimeSimulation.weekdays.sat: {0: TimeSimulation.ten_min_frequency},
-                TimeSimulation.weekdays.sun: {0: TimeSimulation.ten_min_frequency},
+                TimeSimulation.weekdays.mon: {
+                    0: TimeSimulation.ten_min_frequency
+                },
+                TimeSimulation.weekdays.tue: {
+                    0: TimeSimulation.ten_min_frequency
+                },
+                TimeSimulation.weekdays.wed: {
+                    0: TimeSimulation.ten_min_frequency
+                },
+                TimeSimulation.weekdays.thu: {
+                    0: TimeSimulation.ten_min_frequency
+                },
+                TimeSimulation.weekdays.fri: {
+                    0: TimeSimulation.ten_min_frequency
+                },
+                TimeSimulation.weekdays.sat: {
+                    0: TimeSimulation.ten_min_frequency
+                },
+                TimeSimulation.weekdays.sun: {
+                    0: TimeSimulation.ten_min_frequency
+                },
             }
-
         self.train_lines = [
             Line(Line.colors.blue, self.raw_df[self.raw_df["blue"]]),
             Line(Line.colors.red, self.raw_df[self.raw_df["red"]]),
@@ -71,7 +81,10 @@ class TimeSimulation:
                 # Send weather on the top of the hour
                 if curr_time.minute == 0:
                     weather.run(curr_time.month)
-                _ = [line.run(curr_time, self.time_step) for line in self.train_lines]
+                _ = [
+                    line.run(curr_time, self.time_step)
+                    for line in self.train_lines
+                ]
                 curr_time = curr_time + self.time_step
                 time.sleep(self.sleep_seconds)
         except KeyboardInterrupt as e:
